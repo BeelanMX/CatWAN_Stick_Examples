@@ -101,20 +101,8 @@ void setup() {
   for (int channel=0; channel<72; ++channel) {
       LMIC_disableChannel(channel);
     }
-  //SF TTN
-  /*
-      LMIC_enableChannel(8);
-      LMIC_enableChannel(9);
-      LMIC_enableChannel(10);  //904.3Mhz
-      LMIC_enableChannel(11);
-      LMIC_enableChannel(12);
-      LMIC_enableChannel(13);
-      LMIC_enableChannel(14);
-      LMIC_enableChannel(15);
-      LMIC_enableChannel(65); */
-   
-  //Home
-    
+
+    //Beelan channels 
       LMIC_enableChannel(48);
       LMIC_enableChannel(49);
       LMIC_enableChannel(50);
@@ -170,17 +158,3 @@ void getInfoAndSend() {
     digitalWrite(LED_BUILTIN, HIGH);
     do_send(&sendjob, mydata, sizeof(mydata));
   }
-
-
-float readTemperature() {
-
-  //int a = analogRead(A0);
-  int a=1023;
-  float R = 1023.0 / ((float)a) - 1.0;
-  R = 100000.0 * R;
-
-  float temperature = 1.0 / (log(R / 100000.0) / 4275 + 1 / 298.15) - 273.15; //convert to temperature via datasheet ;
-
-  return temperature;
-
-}

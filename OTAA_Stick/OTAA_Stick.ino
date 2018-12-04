@@ -3,9 +3,7 @@
   Based on Copyright (c) 2015 Thomas Telkamp and Matthijs Kooijman
   PLEASE REFER TO THIS LMIC LIBRARY https://github.com/things-nyc/arduino-lmic
   
-  LoRaShield
-  In this example you can send GPS information (Compatible with the L80)
-  or a temperature read by the ADC  
+  CatWAN USB-Stick
   Example
  *******************************************************************************/
 
@@ -148,19 +146,8 @@ void setup() {
   for (int channel=0; channel<72; ++channel) { 
       LMIC_disableChannel(channel); 
     } 
- /*
-      //Subband 1 
-      LMIC_enableChannel(8);
-      LMIC_enableChannel(9);
-      LMIC_enableChannel(10);  //904.3Mhz
-      LMIC_enableChannel(11);
-      LMIC_enableChannel(12);
-      LMIC_enableChannel(13);
-      LMIC_enableChannel(14);
-      LMIC_enableChannel(15);
-      LMIC_enableChannel(65); 
-   */
-  //Beelan
+
+  //Beelan channels
     
       LMIC_enableChannel(48);
       LMIC_enableChannel(49);
