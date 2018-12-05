@@ -10,13 +10,20 @@
 #include <lmic.h>
 #include <hal/hal.h>
 #include <SPI.h>
+#include <TemperatureZero.h>
 
+
+#define debugSerial Serial
+
+
+TemperatureZero TempZero = TemperatureZero();
 unsigned long previousMillis = 0;
 
-
-static const PROGMEM u1_t NWKSKEY[16] ={0x98,0xBB,0x8C,0x22,0xFC,0x0D,0x1F,0xB5,0xEF,0x8E,0xA2,0x90,0x76,0xFB,0xCF,0xA7};
-static const u1_t PROGMEM APPSKEY[16] ={0xA4,0x98,0xF9,0x32,0xDF,0x71,0xDC,0x0A,0xB2,0xA6,0x15,0x77,0xC4,0xC4,0xCC,0xE7};
-static const u4_t DEVADDR =0x077ce77f;
+                                        //30   ff   5c  1e    44  02   a0   88    64   66   6c   bb   63   68   f2   e8
+static const PROGMEM u1_t NWKSKEY[16] ={0x30,0xFF,0x5C,0x1E,0x44,0x02,0xA0,0x88,0x64,0x66,0x6C,0xBB,0x63,0x68,0xF2,0xE8};
+                                       // ac  ad    4a   55  6a    21  4c    f5   59   89   c0   df   ec   ba   31   e9
+static const u1_t PROGMEM APPSKEY[16] ={0xAC,0xAD,0x4A,0x55,0x6A,0x21,0x4C,0xF5,0x59,0x89,0xC0,0xDF,0xEC,0xBA,0x31,0xE9};
+static const u4_t DEVADDR =0x01a09cfb;  //01a09cfb
 
 
 void os_getArtEui (u1_t* buf) { }
@@ -43,6 +50,23 @@ const lmic_pinmap lmic_pins = {
     .dio = {RFM_DIO0, RFM_DIO1, RFM_DIO2},
 };
 
+void debug_char(u1_t b) {
+  debugSerial.write(b);
+}
+
+void debug_hex (u1_t b) {
+  debug_char("0123456789ABCDEF"[b >> 4]);
+  debug_char("0123456789ABCDEF"[b & 0xF]);
+}
+
+void debug_buf (const u1_t* buf, u2_t len) {
+  while (len--) {
+    debug_hex(*buf++);
+    debug_char(' ');
+  }
+  debug_char('\r');
+  debug_char('\n');
+}
 
 void onEvent (ev_t ev) {
   switch (ev) {
@@ -58,7 +82,12 @@ void onEvent (ev_t ev) {
         SerialUSB.print(F("[LMIC] Received "));
         SerialUSB.print(LMIC.dataLen);
         SerialUSB.println(F(" bytes of payload"));
+        //Serial.write(LMIC.frame + LMIC.dataBeg, LMIC.dataLen);
+        //Serial.println(LMIC.frame + LMIC.dataBeg, HEX);
         Serial.write(LMIC.frame + LMIC.dataBeg, LMIC.dataLen);
+        Serial.println();
+        debug_buf(LMIC.frame + LMIC.dataBeg, LMIC.dataLen);
+
       }
       break;
 
@@ -87,7 +116,7 @@ void setup() {
   SerialUSB.begin(115200);
   SerialUSB.println(F("[INFO] LoRa Demo Node 1 Demonstration"));
   
-
+  TempZero.init();
   os_init();
   LMIC_reset();
 
@@ -141,7 +170,7 @@ void getInfoAndSend() {
   uint8_t ch = 0;
   SerialUSB.println(F("[INFO] Collecting info"));
 
-  float temp = 10.4765;
+  float temp =   TempZero.readInternalTemperature();
   SerialUSB.print(F("[INFO] Temperature:")); SerialUSB.println(temp);
   int val = round(temp * 10);
   mydata[cnt++] = ch;
